@@ -1,10 +1,4 @@
-import {
-  Component,
-  inject,
-  Signal,
-  signal,
-  WritableSignal,
-} from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { DividerModule } from 'primeng/divider';
@@ -31,6 +25,7 @@ import { ConfirmationService } from 'primeng/api';
   ],
   providers: [ConfirmationService],
   templateUrl: './attendance.component.html',
+  styles: ':host {width:100%}',
 })
 export class AttendanceComponent {
   private readonly _confirmDialogService: ConfirmationService =

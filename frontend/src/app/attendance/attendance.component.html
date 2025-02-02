@@ -1,56 +1,4 @@
-<div class="flex">
-  <div class="h-svh">
-    <div class="flex h-full px-2.5 py-3">
-      <div
-        class="bg-surface-100 dark:bg-surface-800 w-fit flex flex-col items-center justify-between rounded-xl p-3.5 overflow-y-auto"
-      >
-        <div class="flex flex-col">
-          <i
-            class="pi pi-prime w-full aspect-square bg-transparent border rounded-lg dark:border-white border-black mb-8 flex justify-center items-center hover:border-primary hover:text-primary transition-colors text-black dark:text-white"
-          ></i>
-          <div class="flex flex-col gap-1">
-            <p-button
-              icon="pi pi-home"
-              aria-label="Home"
-              pTooltip="Home"
-              tooltipPosition="right"
-            />
-            <p-button
-              severity="secondary"
-              icon="pi pi-user"
-              aria-label="Users"
-              pTooltip="Users"
-              tooltipPosition="right"
-            ></p-button>
-            <p-button
-              severity="secondary"
-              icon="pi pi-file-edit"
-              aria-label="Attendance"
-              pTooltip="Attendance"
-              tooltipPosition="right"
-            />
-          </div>
-        </div>
-        <div class="flex flex-col items-center">
-          <p-button
-            severity="secondary"
-            icon="pi pi-cog"
-            aria-label="Settings"
-            pTooltip="Settings"
-            tooltipPosition="right"
-          />
-          <div class="mb-1">
-            <p-divider />
-          </div>
-          <div
-            class="w-full aspect-square rounded-full bg-primary flex justify-center items-center"
-          >
-            <p class="dark:text-black text-lg text-semibold">U</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="w-full flex">
   <div class="h-svh px-2.5 py-3">
     <div
       class="lg:w-64 w-40 h-full overflow-hidden border border-surface rounded-xl flex flex-col"
@@ -160,60 +108,62 @@
       </div>
     </div>
   </div>
-</div>
-<p-dialog
-  header="New entry"
-  [(visible)]="entryModalVisible"
-  [modal]="true"
-  [style]="{ width: '24rem' }"
-  [draggable]="false"
-  [resizable]="false"
->
-  <div class="flex flex-col gap-4">
-    <div class="flex flex-col gap-2">
-      <label class="font-semibold text-sm" for="subject">Subject</label>
-      <input
-        pInputText
-        placeholder="SUB"
-        id="subject"
-        aria-describedby="subject-help"
-      />
-      <small class="text-xs" id="subject-help"
-        >Enter 3 or 4 character shortcut for subject name</small
-      >
-    </div>
-    <div class="flex flex-col gap-2 min-h-32">
-      <label class="font-semibold text-sm" for="description">Description</label>
-      <textarea
-        style="resize: none"
-        rows="5"
-        cols="30"
-        pTextarea
-        placeholder="Some kind of description..."
-        [autoResize]="false"
-      ></textarea>
-    </div>
-    <div class="flex flex-col gap-2">
-      <label class="font-semibold text-sm" for="description">Hours</label>
-      <p-inputnumber
-        placeholder="Amount of hours"
-        inputId="minmax"
-        [min]="0"
-        [max]="20"
-      />
-
-      <small class="text-xs" id="hours-help"
-        >Enter number of hours lesson/task took</small
-      >
-    </div>
-    <div class="flex justify-end">
-      <div class="flex gap-2">
-        <p-button (onClick)="toggleEntryDialog()" severity="secondary"
-          >Cancel</p-button
+  <p-dialog
+    header="New entry"
+    [(visible)]="entryModalVisible"
+    [modal]="true"
+    [style]="{ width: '24rem' }"
+    [draggable]="false"
+    [resizable]="false"
+  >
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-2">
+        <label class="font-semibold text-sm" for="subject">Subject</label>
+        <input
+          pInputText
+          placeholder="SUB"
+          id="subject"
+          aria-describedby="subject-help"
+        />
+        <small class="text-xs" id="subject-help"
+          >Enter 3 or 4 character shortcut for subject name</small
         >
-        <p-button>Submit</p-button>
+      </div>
+      <div class="flex flex-col gap-2 min-h-32">
+        <label class="font-semibold text-sm" for="description"
+          >Description</label
+        >
+        <textarea
+          style="resize: none"
+          rows="5"
+          cols="30"
+          pTextarea
+          placeholder="Some kind of description..."
+          [autoResize]="false"
+        ></textarea>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label class="font-semibold text-sm" for="description">Hours</label>
+        <p-inputnumber
+          placeholder="Amount of hours"
+          inputId="minmax"
+          [min]="0"
+          [max]="20"
+        />
+
+        <small class="text-xs" id="hours-help"
+          >Enter number of hours lesson/task took</small
+        >
+      </div>
+      <div class="flex justify-end">
+        <div class="flex gap-2">
+          <p-button (onClick)="toggleEntryDialog()" severity="secondary"
+            >Cancel</p-button
+          >
+          <p-button>Submit</p-button>
+        </div>
       </div>
     </div>
-  </div>
-</p-dialog>
-<p-confirmdialog />
+  </p-dialog>
+  <p-confirmdialog />
+</div>
