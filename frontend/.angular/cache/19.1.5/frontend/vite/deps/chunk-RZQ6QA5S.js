@@ -1,13 +1,12 @@
 import {
   CommonModule
-} from "./chunk-F5PXEHWK.js";
+} from "./chunk-M4XCCFPR.js";
 import {
   Component,
   Directive,
   Injectable,
   Input,
   NgModule,
-  Subject,
   TemplateRef,
   setClassMetadata,
   ɵsetClassDebugInfo,
@@ -20,7 +19,10 @@ import {
   ɵɵprojection,
   ɵɵprojectionDef,
   ɵɵsetNgModuleScope
-} from "./chunk-DSGZ5UQH.js";
+} from "./chunk-N3QORVCK.js";
+import {
+  Subject
+} from "./chunk-ZSY7TSMJ.js";
 
 // node_modules/@primeuix/utils/dom/index.mjs
 function hasClass(element, className) {
@@ -1488,6 +1490,7 @@ export {
   EventBus,
   isEmpty,
   isNotEmpty,
+  equals,
   isObject,
   resolve,
   isString,
@@ -1515,4 +1518,4 @@ export {
   TranslationKeys,
   TreeDragDropService
 };
-//# sourceMappingURL=chunk-J3NR6FEY.js.map
+//# sourceMappingURL=chunk-RZQ6QA5S.js.map

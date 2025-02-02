@@ -1,9 +1,13 @@
 import { Routes } from '@angular/router';
-import { AttendanceComponent } from './attendance/attendance.component';
+import { LoginComponent } from './login/login.component';
 
 export const routes: Routes = [
   {
-    path: 'attendance',
-    component: AttendanceComponent,
+    path: '',
+    loadChildren: () => import('./shell/shell.routes').then((m) => m.routes),
+  },
+  {
+    path: 'login',
+    component: LoginComponent,
   },
 ];

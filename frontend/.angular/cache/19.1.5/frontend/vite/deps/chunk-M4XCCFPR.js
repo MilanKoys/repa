@@ -27,7 +27,6 @@ import {
   Renderer2,
   RendererStyleFlags2,
   RuntimeError,
-  Subject,
   TemplateRef,
   Version,
   ViewContainerRef,
@@ -56,7 +55,10 @@ import {
   ɵɵinject,
   ɵɵinjectAttribute,
   ɵɵstyleProp
-} from "./chunk-DSGZ5UQH.js";
+} from "./chunk-N3QORVCK.js";
+import {
+  Subject
+} from "./chunk-ZSY7TSMJ.js";
 import {
   __async,
   __spreadProps,
@@ -4946,6 +4948,7 @@ export {
   Location,
   parseCookieValue,
   NgClass,
+  NgForOf,
   NgIf,
   NgStyle,
   NgTemplateOutlet,
@@ -4965,4 +4968,4 @@ export {
    * License: MIT
    *)
 */
-//# sourceMappingURL=chunk-F5PXEHWK.js.map
+//# sourceMappingURL=chunk-M4XCCFPR.js.map
