@@ -64,6 +64,7 @@ export class LoginComponent {
 
   private _success(value: loginResponse) {
     if (value.error || value.details) {
+      this._disabled.set(false);
       if (value.details) this._parseErrors(value.details);
       return this._messageService.add({
         severity: 'error',
@@ -73,7 +74,6 @@ export class LoginComponent {
     }
 
     if (value.token) {
-      this._disabled.set(true);
       this._authorize(value.token);
     }
   }
@@ -114,6 +114,7 @@ export class LoginComponent {
   }
 
   protected login() {
+    this._disabled.set(true);
     const formValues = this._loginForm.value;
     this._httpClient
       .post<loginResponse>('http://localhost:3000/auth/login', {
