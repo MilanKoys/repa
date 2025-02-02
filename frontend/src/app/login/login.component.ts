@@ -11,7 +11,6 @@ import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
-  ValidationErrors,
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -25,12 +24,14 @@ import { take } from 'rxjs';
 interface loginResponse {
   error: Nullable<string>;
   token: Nullable<string>;
-  details: {
-    message: string;
-    context: {
-      key: string;
-    };
-  }[];
+  details: ErrorDetails[];
+}
+
+interface ErrorDetails {
+  message: string;
+  context: {
+    key: string;
+  };
 }
 
 @Component({
@@ -63,24 +64,7 @@ export class LoginComponent {
 
   private _success(value: loginResponse) {
     if (value.error || value.details) {
-      let keys: string[] = [];
-      if (value.details) {
-        value.details.forEach((detail) => {
-          keys.push(detail.context.key);
-        });
-      }
-
-      if (keys.length) {
-        keys.forEach((key) => {
-          this._loginForm.controls[key as 'email' | 'password'].setErrors({
-            error: 'error',
-          });
-        });
-      } else {
-        this._loginForm.controls.email.setErrors({ error: 'error' });
-        this._loginForm.controls.password.setErrors({ error: 'error' });
-      }
-
+      if (value.details) this._parseErrors(value.details);
       return this._messageService.add({
         severity: 'error',
         summary: 'Error',
@@ -91,6 +75,26 @@ export class LoginComponent {
     if (value.token) {
       this._disabled.set(true);
       this._authorize(value.token);
+    }
+  }
+
+  private _parseErrors(details: ErrorDetails[]) {
+    let keys: string[] = [];
+    if (details) {
+      details.forEach((detail) => {
+        keys.push(detail.context.key);
+      });
+    }
+
+    if (keys.length) {
+      keys.forEach((key) => {
+        this._loginForm.controls[key as 'email' | 'password'].setErrors({
+          error: 'error',
+        });
+      });
+    } else {
+      this._loginForm.controls.email.setErrors({ error: 'error' });
+      this._loginForm.controls.password.setErrors({ error: 'error' });
     }
   }
 
