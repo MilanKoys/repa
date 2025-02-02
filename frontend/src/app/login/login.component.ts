@@ -19,7 +19,7 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { Nullable } from 'primeng/ts-helpers';
-import { take } from 'rxjs';
+import { catchError, take } from 'rxjs';
 
 interface loginResponse {
   error: Nullable<string>;
@@ -113,6 +113,15 @@ export class LoginComponent {
     setTimeout(() => this._router.navigateByUrl('/'), 1200);
   }
 
+  private _error() {
+    this._disabled.set(false);
+    this._messageService.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Server has experienced unexpected issues.',
+    });
+  }
+
   protected login() {
     this._disabled.set(true);
     const formValues = this._loginForm.value;
@@ -121,7 +130,13 @@ export class LoginComponent {
         email: formValues.email,
         password: formValues.password,
       })
-      .pipe(take(1))
+      .pipe(
+        take(1),
+        catchError((error) => {
+          this._error();
+          throw error;
+        })
+      )
       .subscribe((value) => this._success(value));
   }
 
