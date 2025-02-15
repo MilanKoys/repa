@@ -1,4 +1,5 @@
 import { getDatabase } from "./database.js";
+import { getSession } from "./session.js";
 
 export enum Roles {
   Student,
@@ -33,6 +34,16 @@ export async function updateUser(
   if (!database) return false;
   const users = database.collection<User>("users");
   return (await users.updateOne(user, { $set: updatedUser })).acknowledged;
+}
+
+export async function getUserFromToken(token: string): Promise<number | User> {
+  const session = await getSession({ token });
+  if (!session) return 0;
+
+  const user = await getUser({ id: session.owner });
+  if (!user) return 1;
+
+  return user;
 }
 
 export async function getUsers(): Promise<User[]> {

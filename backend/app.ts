@@ -7,6 +7,7 @@ import { initDatabase } from "./database.js";
 
 import auth from "./api/auth/router.js";
 import users from "./api/users/router.js";
+import attendance from "./api/attendance/router.js";
 
 const port = 3000;
 const databaseConnectionString = "mongodb://127.0.0.1:27017";
@@ -21,6 +22,7 @@ app.use(morgan("tiny"));
 
 app.use("/auth", auth);
 app.use("/users", users);
+app.use("/attendance", attendance);
 
 app.listen(port, () => console.log(`Running on http://localhost:${port}`));
 mongodb

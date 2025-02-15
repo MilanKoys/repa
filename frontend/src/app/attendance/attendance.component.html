@@ -11,40 +11,29 @@
         </div>
       </div>
       <div
-        class="flex-1 flex flex-col overflow-auto justify-between gap-4 pt-4 pb-4 px-4"
+        class="flex-1 flex flex-col overflow-auto justify-between gap-4 pt-4 pb-4 px-2"
       >
         <div class="flex-1 overflow-auto flex flex-col gap-2">
           <div class="flex flex-col gap-1.5 ng-star-inserted">
+            @for(week of numberToArray(weekCount()); track $index) {
             <button
-              class="px-4 py-2 justify-between rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-all text-color bg-emphasis ng-star-inserted"
+              (click)="createAttendance($index)"
+              class="px-4 py-2 justify-between rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-all text-color ng-star-inserted mx-2"
+              [class.bg-emphasis]="currentWeek() === $index"
             >
-              <span class="font-medium">Week 1</span>
-              <div class="size-2 bg-green-500 rounded-full"></div>
+              <span class="font-medium">Week {{ $index + 1 }}</span>
+              <div
+                class="size-2 {{ getWeekStatusColor($index) }} rounded-full"
+              ></div>
             </button>
-            <button
-              class="px-4 py-2 justify-between rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-all text-color ng-star-inserted"
-            >
-              <span class="font-medium">Week 2</span>
-              <div class="size-2 bg-primary-500 rounded-full"></div>
-            </button>
-            <button
-              class="px-4 py-2 justify-between rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-all text-color ng-star-inserted"
-            >
-              <span class="font-medium">Week 3</span>
-              <div class="size-2 bg-orange-500 rounded-full"></div>
-            </button>
-            <button
-              class="px-4 py-2 justify-between rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-all text-color ng-star-inserted"
-            >
-              <span class="font-medium">Week 4</span>
-              <div class="size-2 bg-red-500 rounded-full"></div>
-            </button>
+            }
           </div>
         </div>
       </div>
     </div>
   </div>
   <div class="flex flex-col w-full px-2.5 py-3">
+    @if(currentAttendance(); as attendance) {
     <div
       class="w-full h-full overflow-hidden border border-surface rounded-xl flex flex-col"
     >
@@ -53,7 +42,7 @@
       >
         <div class="flex flex-col gap-2">
           <div class="flex gap-2">
-            <p class="font-semibold text-xl">Week 1</p>
+            <p class="font-semibold text-xl">Week {{ attendance.week + 1 }}</p>
 
             <div class="hidden md:flex">
               <p-tag severity="contrast">New</p-tag>
@@ -65,7 +54,7 @@
             </div>
           </div>
           <p class="text-secondary tex-sm hidden md:block">
-            21.2.2025 - 28.2.2025
+            {{ getWeekDateString(attendance.week) }}
           </p>
         </div>
 
@@ -85,23 +74,25 @@
       </div>
       <div class="flex flex-col justify-between">
         <div class="flex-1 flex flex-col overflow-auto gap-3 pt-4 pb-4 px-4">
+          @for(item of attendance.content; track item) {
           <div
             class="border rounded-lg border-surface px-2 py-3 flex justify-between"
           >
             <div class="flex items-center gap-4">
-              <p-tag>ODP</p-tag>
+              <p-tag>{{ item.subject.toUpperCase() }}</p-tag>
               <p>
-                Morning check, checking pods and nodes, restarting stuck pods
+                {{ item.description }}
               </p>
             </div>
             <div class="flex gap-2 items-center ms-4">
-              <p class="font-bold text-xl me-2">2</p>
+              <p class="font-bold text-xl me-2">{{ item.hours }}</p>
               <p-button (onClick)="toggleEntryDialog(entryDialogTypes.Update)">
                 <i class="pi pi-pencil"></i
               ></p-button>
               <p-button> <i class="pi pi-trash"></i></p-button>
             </div>
           </div>
+          }
           <div class="flex justify-end gap-2">
             <p-button severity="contrast">
               <p class="font-bold">2 Hours total</p>
@@ -113,6 +104,7 @@
         </div>
       </div>
     </div>
+    }
   </div>
   <p-dialog
     [header]="
@@ -128,6 +120,7 @@
       <div class="flex flex-col gap-2">
         <label class="font-semibold text-sm" for="subject">Subject</label>
         <input
+          [(ngModel)]="entrySubject"
           pInputText
           placeholder="SUB"
           id="subject"
@@ -142,6 +135,7 @@
           >Description</label
         >
         <textarea
+          [(ngModel)]="entryDescription"
           style="resize: none"
           rows="5"
           cols="30"
@@ -153,6 +147,7 @@
       <div class="flex flex-col gap-2">
         <label class="font-semibold text-sm" for="description">Hours</label>
         <p-inputnumber
+          [(ngModel)]="entryHours"
           placeholder="Amount of hours"
           inputId="minmax"
           [min]="0"
@@ -169,7 +164,7 @@
             >Cancel</p-button
           >
           @if(entryDialogType() === entryDialogTypes.New) {
-          <p-button>Submit</p-button>
+          <p-button (onClick)="addAttendanceItem()">Submit</p-button>
           }@else {
           <p-button>Update</p-button>
           }

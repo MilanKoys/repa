@@ -46,25 +46,43 @@ export async function updateAttendance(
   ).acknowledged;
 }
 
+export async function getAttendance(user: User): Promise<Attendance[]> {
+  const database = getDatabase("repa");
+  if (!database) return [];
+  const attendances = database.collection<Attendance>("attendances");
+  const liveSeason = await getLiveSeason();
+  if (!liveSeason) return [];
+  return await attendances
+    .find({ owner: user.id, season: liveSeason.id })
+    .toArray();
+}
+
 export async function createAttendance(
   user: User,
   attendance: Partial<Attendance>
 ): Promise<false | Attendance> {
   const database = getDatabase("repa");
   if (!database) return false;
-  const attendances = database.collection("attendances");
+  const attendances = database.collection<Attendance>("attendances");
 
-  if (!attendance.week) return false;
-  if (!attendance.content?.length) return false;
+  if (typeof attendance.week !== "number") return false;
+  if (!Array.isArray(attendance.content)) return false;
 
   const season = await getLiveSeason();
   if (!season) return false;
+
+  const found = await attendances.findOne({
+    week: attendance.week,
+    owner: user.id,
+    season: season.id,
+  });
+  if (found) return found;
 
   const newAttendance: Attendance = {
     id: nanoid(),
     owner: user.id,
     status: AttendanceStatus.New,
-    content: attendance.content ?? [],
+    content: attendance.content,
     week: attendance.week ?? 0,
     season: season.id,
   };
