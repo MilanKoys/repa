@@ -99,7 +99,7 @@
               <p class="font-bold">{{ totalHours() }} Hours total</p>
             </p-button>
             }
-            <p-button (onClick)="toggleEntryDialog(entryDialogTypes.New)">
+            <p-button (onClick)="newAttendanceItem()">
               <i class="pi pi-plus"></i> New entry</p-button
             >
           </div>
@@ -122,14 +122,20 @@
       <div class="flex flex-col gap-2">
         <label class="font-semibold text-sm" for="subject">Subject</label>
         <input
-          [(ngModel)]="entrySubject"
+          [class]="
+            dialogForm.controls.subject.dirty &&
+            dialogForm.controls.subject.invalid
+              ? 'ng-invalid ng-dirty'
+              : ''
+          "
+          [formControl]="dialogForm.controls.subject"
           pInputText
           placeholder="SUB"
           id="subject"
           aria-describedby="subject-help"
         />
         <small class="text-xs" id="subject-help"
-          >Enter 3 or 4 character shortcut for subject name</small
+          >Enter 3 to 10 character shortcut for subject name</small
         >
       </div>
       <div class="flex flex-col gap-2 min-h-32">
@@ -137,7 +143,14 @@
           >Description</label
         >
         <textarea
-          [(ngModel)]="entryDescription"
+          [class]="
+            dialogForm.controls.description.dirty &&
+            dialogForm.controls.description.invalid
+              ? 'ng-invalid ng-dirty'
+              : ''
+          "
+          [formControl]="dialogForm.controls.description"
+          minlength="5"
           style="resize: none"
           rows="5"
           cols="30"
@@ -149,11 +162,14 @@
       <div class="flex flex-col gap-2">
         <label class="font-semibold text-sm" for="description">Hours</label>
         <p-inputnumber
-          [(ngModel)]="entryHours"
+          [class]="
+            dialogForm.controls.hours.dirty && dialogForm.controls.hours.invalid
+              ? 'ng-invalid ng-dirty'
+              : ''
+          "
+          [formControl]="dialogForm.controls.hours"
           placeholder="Amount of hours"
           inputId="minmax"
-          [min]="0"
-          [max]="20"
         />
 
         <small class="text-xs" id="hours-help"
@@ -166,9 +182,15 @@
             >Cancel</p-button
           >
           @if(entryDialogType() === entryDialogTypes.New) {
-          <p-button (onClick)="addAttendanceItem()">Submit</p-button>
+          <p-button
+            [disabled]="dialogForm.invalid"
+            (onClick)="addAttendanceItem()"
+            >Submit</p-button
+          >
           }@else {
-          <p-button (onClick)="updateAttendanceItem(currentAttendanceItem())"
+          <p-button
+            [disabled]="dialogForm.invalid"
+            (onClick)="updateAttendanceItem(currentAttendanceItem())"
             >Update</p-button
           >
           }

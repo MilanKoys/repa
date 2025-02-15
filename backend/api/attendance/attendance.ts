@@ -18,8 +18,8 @@ const updateAttendanceSchema = Joi.object({
   content: Joi.array()
     .items(
       Joi.object({
-        subject: Joi.string().required(),
-        description: Joi.string().required(),
+        subject: Joi.string().min(3).max(10).required(),
+        description: Joi.string().min(5).required(),
         hours: Joi.number().required(),
       })
     )

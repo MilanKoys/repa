@@ -17,9 +17,15 @@ import { TagModule } from 'primeng/tag';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Nullable } from 'primeng/ts-helpers';
-import { FormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 
 enum EntryDialogType {
   New,
@@ -68,12 +74,34 @@ export interface AttendanceItem {
     TagModule,
     ConfirmDialogModule,
     FormsModule,
+    ReactiveFormsModule,
   ],
   providers: [ConfirmationService],
   templateUrl: './attendance.component.html',
   styles: ':host {width:100%}',
 })
 export class AttendanceComponent {
+  private readonly _formsBuilder: FormBuilder = inject(FormBuilder);
+  private readonly _dialogForm: FormGroup<{
+    subject: FormControl<string | null>;
+    description: FormControl<string | null>;
+    hours: FormControl<number | null>;
+  }> = this._formsBuilder.group<{
+    subject: FormControl<string | null>;
+    description: FormControl<string | null>;
+    hours: FormControl<number | null>;
+  }>({
+    description: this._formsBuilder.control<string>('', {
+      validators: [Validators.required, Validators.min(5)],
+    }),
+    subject: this._formsBuilder.control<string>('', {
+      validators: [Validators.required, Validators.min(3), Validators.max(10)],
+    }),
+    hours: this._formsBuilder.control<number>(0, [
+      Validators.required,
+      Validators.max(20),
+    ]),
+  });
   private readonly _httpClient: HttpClient = inject(HttpClient);
   private readonly _confirmDialogService: ConfirmationService =
     inject(ConfirmationService);
@@ -114,9 +142,6 @@ export class AttendanceComponent {
   protected readonly currentWeek: Signal<null | number> = computed(
     () => this._currentAttendance()?.week ?? null
   );
-  protected entryDescription: string = '';
-  protected entrySubject: string = '';
-  protected entryHours: number | null = null;
 
   constructor() {
     this._load();
@@ -136,7 +161,6 @@ export class AttendanceComponent {
       .get<Attendance[]>('http://localhost:3000/attendance', { headers })
       .subscribe((attendances: Attendance[]) => {
         this._attendances.set(attendances);
-        console.log(attendances);
       });
   }
 
@@ -203,30 +227,45 @@ export class AttendanceComponent {
           content: [
             ...attendance.content,
             {
-              subject: this.entrySubject,
-              description: this.entryDescription,
-              hours: this.entryHours,
+              subject: this.dialogForm.controls.subject.value ?? '',
+              description: this.dialogForm.controls.description.value ?? '',
+              hours: this.dialogForm.controls.hours.value ?? 0,
             },
           ],
         },
         { headers }
       )
       .subscribe(() => {
-        this.entrySubject = '';
-        this.entryDescription = '';
-        this.entryHours = null;
+        this.dialogForm.controls.subject.setValue(null);
+        this.dialogForm.controls.description.setValue(null);
+        this.dialogForm.controls.hours.setValue(null);
         this.toggleEntryDialog();
         this.createAttendance(attendance.week);
       });
+  }
+
+  protected newAttendanceItem() {
+    this.dialogForm.controls.subject.setValue(null);
+    this.dialogForm.controls.description.setValue(null);
+    this.dialogForm.controls.hours.setValue(null);
+    this.dialogForm.controls.subject.reset();
+    this.dialogForm.controls.description.reset();
+    this.dialogForm.controls.hours.reset();
+    this.toggleEntryDialog(EntryDialogType.New);
   }
 
   protected editAttendanceItem(index: number) {
     const attendance: Nullable<Attendance> = this._currentAttendance();
     if (!attendance) return;
     this._currentAttendanceItem.set(index);
-    this.entrySubject = attendance.content[index].subject;
-    this.entryDescription = attendance.content[index].description;
-    this.entryHours = attendance.content[index].hours;
+
+    this.dialogForm.controls.subject.setValue(
+      attendance.content[index].subject
+    );
+    this.dialogForm.controls.description.setValue(
+      attendance.content[index].description
+    );
+    this.dialogForm.controls.hours.setValue(attendance.content[index].hours);
     this.toggleEntryDialog(EntryDialogType.Update);
   }
 
@@ -243,9 +282,10 @@ export class AttendanceComponent {
         {
           content: attendance.content.map((attendance, position) => {
             if (position == index) {
-              attendance.subject = this.entrySubject;
-              attendance.description = this.entryDescription;
-              attendance.hours = this.entryHours ?? 0;
+              attendance.subject = this.dialogForm.controls.subject.value ?? '';
+              attendance.description =
+                this.dialogForm.controls.description.value ?? '';
+              attendance.hours = this.dialogForm.controls.hours.value ?? 0;
             }
             return attendance;
           }),
@@ -253,9 +293,9 @@ export class AttendanceComponent {
         { headers }
       )
       .subscribe(() => {
-        this.entrySubject = '';
-        this.entryDescription = '';
-        this.entryHours = null;
+        this.dialogForm.controls.subject.setValue(null);
+        this.dialogForm.controls.description.setValue(null);
+        this.dialogForm.controls.hours.setValue(null);
         this.toggleEntryDialog();
         this.createAttendance(attendance.week);
       });
@@ -304,5 +344,9 @@ export class AttendanceComponent {
       accept: () => {},
       reject: () => {},
     });
+  }
+
+  protected get dialogForm() {
+    return this._dialogForm;
   }
 }
