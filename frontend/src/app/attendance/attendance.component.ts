@@ -1,4 +1,10 @@
-import { Component, inject } from '@angular/core';
+import {
+  Component,
+  inject,
+  Signal,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { DividerModule } from 'primeng/divider';
@@ -9,6 +15,11 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { TagModule } from 'primeng/tag';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
+
+enum EntryDialogType {
+  New,
+  Update,
+}
 
 @Component({
   selector: 'app-attendance',
@@ -30,10 +41,19 @@ import { ConfirmationService } from 'primeng/api';
 export class AttendanceComponent {
   private readonly _confirmDialogService: ConfirmationService =
     inject(ConfirmationService);
+  private readonly _entryDialogType: WritableSignal<EntryDialogType> = signal(
+    EntryDialogType.New
+  );
+
+  protected readonly entryDialogType: Signal<EntryDialogType> =
+    this._entryDialogType.asReadonly();
+  protected readonly entryDialogTypes: typeof EntryDialogType = EntryDialogType;
   protected entryModalVisible: boolean = false;
-  protected toggleEntryDialog() {
+  protected toggleEntryDialog(type?: EntryDialogType) {
+    if (type) this._entryDialogType.set(type);
     this.entryModalVisible = !this.entryModalVisible;
   }
+
   protected confirmSubmit() {
     this._confirmDialogService.confirm({
       message: 'Are you sure that you want to submit the attendance?',

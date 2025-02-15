@@ -88,19 +88,25 @@
           <div
             class="border rounded-lg border-surface px-2 py-3 flex justify-between"
           >
-            <div class="flex gap-4">
+            <div class="flex items-center gap-4">
               <p-tag>ODP</p-tag>
               <p>
                 Morning check, checking pods and nodes, restarting stuck pods
               </p>
             </div>
-            <p class="font-bold text-xl me-4">2</p>
+            <div class="flex gap-2 items-center ms-4">
+              <p class="font-bold text-xl me-2">2</p>
+              <p-button (onClick)="toggleEntryDialog(entryDialogTypes.Update)">
+                <i class="pi pi-pencil"></i
+              ></p-button>
+              <p-button> <i class="pi pi-trash"></i></p-button>
+            </div>
           </div>
           <div class="flex justify-end gap-2">
             <p-button severity="contrast">
               <p class="font-bold">2 Hours total</p>
             </p-button>
-            <p-button (onClick)="toggleEntryDialog()">
+            <p-button (onClick)="toggleEntryDialog(entryDialogTypes.New)">
               <i class="pi pi-plus"></i> New entry</p-button
             >
           </div>
@@ -109,7 +115,9 @@
     </div>
   </div>
   <p-dialog
-    header="New entry"
+    [header]="
+      entryDialogType() === entryDialogTypes.New ? 'New entry' : 'Edit entry'
+    "
     [(visible)]="entryModalVisible"
     [modal]="true"
     [style]="{ width: '24rem' }"
@@ -160,7 +168,11 @@
           <p-button (onClick)="toggleEntryDialog()" severity="secondary"
             >Cancel</p-button
           >
+          @if(entryDialogType() === entryDialogTypes.New) {
           <p-button>Submit</p-button>
+          }@else {
+          <p-button>Update</p-button>
+          }
         </div>
       </div>
     </div>
