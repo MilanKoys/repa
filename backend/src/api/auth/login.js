@@ -31,7 +31,7 @@ router.post("/login", async (req, res) => {
         res.json({ error: "Unauthorized" });
         return;
     }
-    const session = await createSession();
+    const session = await createSession(user);
     if (!session) {
         res.sendStatus(500);
         return;

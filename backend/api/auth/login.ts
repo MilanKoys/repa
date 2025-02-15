@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 
 import { getDatabase } from "../../database.js";
 import { createSession } from "../../session.js";
+import { User } from "../../users.js";
 
 const router = express.Router();
 
@@ -18,7 +19,7 @@ router.post("/login", async (req, res) => {
     res.sendStatus(500);
     return;
   }
-  const users = database.collection("users");
+  const users = database.collection<User>("users");
   const body = req.body;
   const bodyValid = loginSchema.validate(body);
   if (bodyValid.error) {
@@ -38,7 +39,7 @@ router.post("/login", async (req, res) => {
     return;
   }
 
-  const session = await createSession();
+  const session = await createSession(user);
   if (!session) {
     res.sendStatus(500);
     return;
