@@ -81,14 +81,24 @@ export class AttendanceComponent {
     EntryDialogType.New
   );
   private readonly _weekCount: WritableSignal<number> = signal(0);
+  private readonly _currentAttendanceItem: WritableSignal<number> = signal(0);
   private readonly _attendances: WritableSignal<Attendance[]> = signal([]);
   private readonly _currentAttendance: WritableSignal<Attendance | null> =
     signal(null);
 
   private readonly _currentSeason: WritableSignal<Season | null> = signal(null);
 
-  private readonly currentSeason: Signal<Season | null> =
+  protected readonly currentAttendanceItem: Signal<number> =
+    this._currentAttendanceItem.asReadonly();
+  protected readonly currentSeason: Signal<Season | null> =
     this._currentSeason.asReadonly();
+
+  protected readonly totalHours: Signal<number> = computed(
+    () =>
+      this._currentAttendance()
+        ?.content.map((c) => c.hours)
+        .reduce((a, c) => a + c) ?? 0
+  );
 
   protected readonly currentAttendance: Signal<Attendance | null> =
     this._currentAttendance.asReadonly();
@@ -106,7 +116,7 @@ export class AttendanceComponent {
   );
   protected entryDescription: string = '';
   protected entrySubject: string = '';
-  protected entryHours: number = 0;
+  protected entryHours: number | null = null;
 
   constructor() {
     this._load();
@@ -202,6 +212,51 @@ export class AttendanceComponent {
         { headers }
       )
       .subscribe(() => {
+        this.entrySubject = '';
+        this.entryDescription = '';
+        this.entryHours = null;
+        this.toggleEntryDialog();
+        this.createAttendance(attendance.week);
+      });
+  }
+
+  protected editAttendanceItem(index: number) {
+    const attendance: Nullable<Attendance> = this._currentAttendance();
+    if (!attendance) return;
+    this._currentAttendanceItem.set(index);
+    this.entrySubject = attendance.content[index].subject;
+    this.entryDescription = attendance.content[index].description;
+    this.entryHours = attendance.content[index].hours;
+    this.toggleEntryDialog(EntryDialogType.Update);
+  }
+
+  protected updateAttendanceItem(index: number) {
+    const headers = new HttpHeaders().append(
+      'authorization',
+      localStorage.getItem('token') ?? ''
+    );
+    const attendance: Nullable<Attendance> = this._currentAttendance();
+    if (!attendance) return;
+    this._httpClient
+      .post<boolean>(
+        `http://localhost:3000/attendance/${attendance.id}`,
+        {
+          content: attendance.content.map((attendance, position) => {
+            if (position == index) {
+              attendance.subject = this.entrySubject;
+              attendance.description = this.entryDescription;
+              attendance.hours = this.entryHours ?? 0;
+            }
+            return attendance;
+          }),
+        },
+        { headers }
+      )
+      .subscribe(() => {
+        this.entrySubject = '';
+        this.entryDescription = '';
+        this.entryHours = null;
+        this.toggleEntryDialog();
         this.createAttendance(attendance.week);
       });
   }

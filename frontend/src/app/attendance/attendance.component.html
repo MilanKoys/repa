@@ -74,7 +74,7 @@
       </div>
       <div class="flex flex-col justify-between">
         <div class="flex-1 flex flex-col overflow-auto gap-3 pt-4 pb-4 px-4">
-          @for(item of attendance.content; track item) {
+          @for(item of attendance.content; track $index) {
           <div
             class="border rounded-lg border-surface px-2 py-3 flex justify-between"
           >
@@ -86,7 +86,7 @@
             </div>
             <div class="flex gap-2 items-center ms-4">
               <p class="font-bold text-xl me-2">{{ item.hours }}</p>
-              <p-button (onClick)="toggleEntryDialog(entryDialogTypes.Update)">
+              <p-button (onClick)="editAttendanceItem($index)">
                 <i class="pi pi-pencil"></i
               ></p-button>
               <p-button> <i class="pi pi-trash"></i></p-button>
@@ -94,9 +94,11 @@
           </div>
           }
           <div class="flex justify-end gap-2">
+            @if(attendance.content.length > 0) {
             <p-button severity="contrast">
-              <p class="font-bold">2 Hours total</p>
+              <p class="font-bold">{{ totalHours() }} Hours total</p>
             </p-button>
+            }
             <p-button (onClick)="toggleEntryDialog(entryDialogTypes.New)">
               <i class="pi pi-plus"></i> New entry</p-button
             >
@@ -166,7 +168,9 @@
           @if(entryDialogType() === entryDialogTypes.New) {
           <p-button (onClick)="addAttendanceItem()">Submit</p-button>
           }@else {
-          <p-button>Update</p-button>
+          <p-button (onClick)="updateAttendanceItem(currentAttendanceItem())"
+            >Update</p-button
+          >
           }
         </div>
       </div>
