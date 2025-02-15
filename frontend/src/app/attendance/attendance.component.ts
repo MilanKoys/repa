@@ -50,7 +50,7 @@ export class AttendanceComponent {
   protected readonly entryDialogTypes: typeof EntryDialogType = EntryDialogType;
   protected entryModalVisible: boolean = false;
   protected toggleEntryDialog(type?: EntryDialogType) {
-    if (type) this._entryDialogType.set(type);
+    if (type !== undefined) this._entryDialogType.set(type);
     this.entryModalVisible = !this.entryModalVisible;
   }
 

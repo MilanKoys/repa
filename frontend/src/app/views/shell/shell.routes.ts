@@ -1,6 +1,6 @@
 import { Route } from '@angular/router';
-import { AttendanceComponent } from '../attendance/attendance.component';
 import { ShellComponent } from './shell.component';
+import { AttendanceComponent } from '../../attendance/attendance.component';
 
 export const routes: Route[] = [
   {
