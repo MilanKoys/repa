@@ -18,7 +18,7 @@ const router = express.Router();
 const updateUserSchema = Joi.object<User>({
   id: Joi.string().required(),
   email: Joi.string(),
-  roles: Joi.string(),
+  roles: Joi.array().items(Joi.number()),
   password: Joi.string(),
   class: Joi.string(),
 });
