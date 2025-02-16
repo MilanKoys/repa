@@ -14,7 +14,7 @@
             aria-label="Home"
             pTooltip="Home"
             tooltipPosition="right"
-            routerLink="/home"
+            routerLink="/"
           />
           <p-button
             [severity]="currentPath() === 'users' ? 'primary' : 'secondary'"
@@ -50,8 +50,10 @@
           <p-divider />
         </div>
         <div
+          (click)="menu.toggle($event)"
           class="w-full aspect-square rounded-full bg-primary flex justify-center items-center"
         >
+          <p-menu appendTo="body" #menu [model]="avatarMenu" [popup]="true" />
           <p class="dark:text-black text-lg text-semibold">U</p>
         </div>
       </div>

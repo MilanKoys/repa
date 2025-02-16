@@ -128,6 +128,42 @@ export class AttendanceComponent {
         .reduce((a, c) => a + c) ?? 0
   );
 
+  protected readonly currentStatusColor: Signal<string> = computed(() => {
+    switch (this._currentAttendance()?.status) {
+      case AttendanceStatus.New:
+        return 'bg-contrast';
+      case AttendanceStatus.Saved:
+        return 'bg-sky-400';
+      case AttendanceStatus.Submited:
+        return 'bg-orange-500';
+      case AttendanceStatus.Accepted:
+        return 'bg-green-500';
+      case AttendanceStatus.Rejected:
+        return 'bg-red-500';
+      default:
+        return 'bg-contrast';
+    }
+  });
+
+  protected readonly currentStatusSeverity: Signal<
+    'info' | 'contrast' | 'success' | 'danger' | 'warn'
+  > = computed(() => {
+    switch (this._currentAttendance()?.status) {
+      case AttendanceStatus.New:
+        return 'contrast';
+      case AttendanceStatus.Saved:
+        return 'info';
+      case AttendanceStatus.Submited:
+        return 'warn';
+      case AttendanceStatus.Accepted:
+        return 'success';
+      case AttendanceStatus.Rejected:
+        return 'danger';
+      default:
+        return 'contrast';
+    }
+  });
+
   protected readonly currentAttendance: Signal<Attendance | null> =
     this._currentAttendance.asReadonly();
   protected readonly entryDialogType: Signal<EntryDialogType> =
@@ -269,6 +305,45 @@ export class AttendanceComponent {
     this.toggleEntryDialog(EntryDialogType.Update);
   }
 
+  protected removeAttendanceItem(index: number) {
+    const headers = new HttpHeaders().append(
+      'authorization',
+      localStorage.getItem('token') ?? ''
+    );
+    const attendance: Nullable<Attendance> = this._currentAttendance();
+    if (!attendance) return;
+    attendance.content.splice(index, 1);
+    this._httpClient
+      .post<boolean>(
+        `http://localhost:3000/attendance/${attendance.id}`,
+        { content: attendance.content },
+        { headers }
+      )
+      .subscribe(() => {
+        this.dialogForm.controls.subject.setValue(null);
+        this.dialogForm.controls.description.setValue(null);
+        this.dialogForm.controls.hours.setValue(null);
+        this.createAttendance(attendance.week);
+      });
+  }
+
+  protected submitAttendance() {
+    const headers = new HttpHeaders().append(
+      'authorization',
+      localStorage.getItem('token') ?? ''
+    );
+    const attendance: Nullable<Attendance> = this._currentAttendance();
+    if (!attendance) return;
+    this._httpClient
+      .get<boolean>(
+        `http://localhost:3000/attendance/submit/${attendance.id}`,
+        { headers }
+      )
+      .subscribe(() => {
+        this.createAttendance(attendance.week);
+      });
+  }
+
   protected updateAttendanceItem(index: number) {
     const headers = new HttpHeaders().append(
       'authorization',
@@ -306,7 +381,15 @@ export class AttendanceComponent {
     if (!attendnace) return 'bg-gray-500';
     switch (attendnace.status) {
       case AttendanceStatus.New:
-        return 'bg-primary-200';
+        return 'dark:bg-white bg-black';
+      case AttendanceStatus.Saved:
+        return 'bg-sky-400';
+      case AttendanceStatus.Submited:
+        return 'bg-orange-500';
+      case AttendanceStatus.Accepted:
+        return 'bg-green-500';
+      case AttendanceStatus.Rejected:
+        return 'bg-red-500';
       default:
         return 'bg-gray-500';
     }
@@ -341,9 +424,36 @@ export class AttendanceComponent {
       acceptButtonProps: {
         label: 'Submit',
       },
-      accept: () => {},
+      accept: () => {
+        this.submitAttendance();
+      },
       reject: () => {},
     });
+  }
+
+  protected statusName(status: AttendanceStatus) {
+    switch (status) {
+      case AttendanceStatus.New:
+        return 'New';
+      case AttendanceStatus.Saved:
+        return 'Saved';
+      case AttendanceStatus.Submited:
+        return 'Submited';
+      case AttendanceStatus.Accepted:
+        return 'Accepted';
+      case AttendanceStatus.Rejected:
+        return 'Rejected';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  protected attendanceHours(attendance: undefined | Attendance) {
+    if (!attendance || !attendance.content || !attendance.content.length)
+      return 'None';
+    return (
+      attendance.content.map((c) => c.hours).reduce((a, c) => a + c) ?? 'None'
+    );
   }
 
   protected get dialogForm() {

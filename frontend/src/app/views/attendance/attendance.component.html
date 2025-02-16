@@ -1,7 +1,7 @@
 <div class="w-full flex flex-col sm:flex-row">
   <div class="sm:h-svh h-full px-2.5 py-3">
     <div
-      class="lg:w-64 sm:w-40 w-full h-full overflow-hidden border border-surface rounded-xl flex flex-col"
+      class="lg:w-64 sm:w-60 w-full h-full overflow-hidden border border-surface rounded-xl flex flex-col"
     >
       <div
         class="flex items-center justify-between gap-2 p-4 border-b border-surface"
@@ -21,7 +21,20 @@
               class="px-4 py-2 justify-between rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-all text-color ng-star-inserted mx-2"
               [class.bg-emphasis]="currentWeek() === $index"
             >
-              <span class="font-medium">Week {{ $index + 1 }}</span>
+              <div class="flex flex-col items-start">
+                <span class="font-medium">Week {{ $index + 1 }}</span>
+                <p class="text-xs opacity-80">
+                  {{ getWeekDateString($index) }}
+                </p>
+                @if(attendanceHours(attendances()[$index]) !== "None") {
+                <p class="text-xs opacity-80">
+                  Hours:
+                  <span class="opacity-100">{{
+                    attendanceHours(attendances()[$index])
+                  }}</span>
+                </p>
+                }
+              </div>
               <div
                 class="size-2 {{ getWeekStatusColor($index) }} rounded-full"
               ></div>
@@ -45,11 +58,13 @@
             <p class="font-semibold text-xl">Week {{ attendance.week + 1 }}</p>
 
             <div class="hidden md:flex">
-              <p-tag severity="contrast">New</p-tag>
+              <p-tag [severity]="currentStatusSeverity()">{{
+                statusName(attendance.status)
+              }}</p-tag>
             </div>
             <div class="md:hidden flex items-center">
               <div
-                class="dark:bg-white bg-black w-1.5 h-1.5 rounded-full"
+                class="{{ currentStatusColor() }} w-1.5 h-1.5 rounded-full"
               ></div>
             </div>
           </div>
@@ -60,14 +75,29 @@
 
         <div class="flex h-full justify-end gap-2">
           <p-button severity="secondary" icon="pi pi-file-export" />
-          <p-button severity="secondary" icon="pi pi-file-import" />
+          <p-button
+            [disabled]="attendance.status > 1 && attendance.status < 4"
+            severity="secondary"
+            icon="pi pi-file-import"
+          />
 
           <p-button
             icon="pi pi-save"
             class="block md:hidden"
+            [disabled]="
+              (attendance.status > 1 && attendance.status < 4) ||
+              attendance.content.length
+            "
             (onClick)="confirmSubmit()"
           ></p-button>
-          <p-button class="hidden md:block" (onClick)="confirmSubmit()">
+          <p-button
+            class="hidden md:block"
+            [disabled]="
+              (attendance.status > 1 && attendance.status < 4) ||
+              !attendance.content.length
+            "
+            (onClick)="confirmSubmit()"
+          >
             <i class="pi pi-save"></i> Submit</p-button
           >
         </div>
@@ -86,10 +116,14 @@
             </div>
             <div class="flex gap-2 items-center ms-4">
               <p class="font-bold text-xl me-2">{{ item.hours }}</p>
+              @if(attendance.status <= 1 || attendance.status == 4) {
               <p-button (onClick)="editAttendanceItem($index)">
                 <i class="pi pi-pencil"></i
               ></p-button>
-              <p-button> <i class="pi pi-trash"></i></p-button>
+              <p-button (onClick)="removeAttendanceItem($index)">
+                <i class="pi pi-trash"></i
+              ></p-button>
+              }
             </div>
           </div>
           }
@@ -99,7 +133,10 @@
               <p class="font-bold">{{ totalHours() }} Hours total</p>
             </p-button>
             }
-            <p-button (onClick)="newAttendanceItem()">
+            <p-button
+              [disabled]="attendance.status > 1 && attendance.status < 4"
+              (onClick)="newAttendanceItem()"
+            >
               <i class="pi pi-plus"></i> New entry</p-button
             >
           </div>
