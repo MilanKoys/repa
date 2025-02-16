@@ -2,11 +2,21 @@ import express from "express";
 import Joi from "joi";
 import bcrypt from "bcrypt";
 import { getDatabase } from "../../database.js";
-import { createSession } from "../../session.js";
+import { createSession, removeSession } from "../../session.js";
 const router = express.Router();
 const loginSchema = Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().min(8).required(),
+});
+router.get("/logout", async (req, res) => {
+    const token = req.headers.authorization;
+    if (!token)
+        return errorStatus(403);
+    res.json(await removeSession({ token }));
+    function errorStatus(status) {
+        res.sendStatus(status);
+        return;
+    }
 });
 router.post("/login", async (req, res) => {
     const database = getDatabase("repa");

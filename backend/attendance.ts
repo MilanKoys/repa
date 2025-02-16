@@ -26,6 +26,35 @@ export interface AttendanceItem {
   hours: number;
 }
 
+export async function submitAttendance(
+  user: User,
+  id: string
+): Promise<boolean> {
+  const database = getDatabase("repa");
+  if (!database) return false;
+  const attendances = database.collection<Attendance>("attendances");
+
+  const season = await getLiveSeason();
+  if (!season) return false;
+
+  return (
+    await attendances.updateOne(
+      {
+        id,
+        owner: user.id,
+        season: season.id,
+        status: { $lte: 1 },
+        content: { $not: { $size: 0 } },
+      },
+      {
+        $set: {
+          status: AttendanceStatus.Submited,
+        },
+      }
+    )
+  ).acknowledged;
+}
+
 export async function updateAttendance(
   user: User,
   id: string,
@@ -40,8 +69,14 @@ export async function updateAttendance(
 
   return (
     await attendances.updateOne(
-      { id, owner: user.id, season: season.id },
-      { $set: { content } }
+      { id, owner: user.id, season: season.id, status: { $lte: 1 } },
+      {
+        $set: {
+          content,
+          status:
+            content.length > 0 ? AttendanceStatus.Saved : AttendanceStatus.New,
+        },
+      }
     )
   ).acknowledged;
 }

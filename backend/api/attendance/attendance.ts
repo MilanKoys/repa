@@ -3,6 +3,7 @@ import { getUserFromToken } from "../../users.js";
 import {
   createAttendance,
   getAttendance,
+  submitAttendance,
   updateAttendance,
 } from "../../attendance.js";
 import { getLiveSeason } from "../../season.js";
@@ -49,6 +50,24 @@ router.get("/", async (req, res) => {
   if (typeof user === "number") return errorStatus(403);
 
   res.json(await getAttendance(user));
+
+  function errorStatus(status: number) {
+    res.sendStatus(status);
+    return;
+  }
+});
+
+router.get("/submit/:id", async (req, res) => {
+  const token = req.headers.authorization;
+  if (!token) return errorStatus(403);
+
+  const params = req.params;
+  if (!params.id) return errorStatus(401);
+
+  const user = await getUserFromToken(token);
+  if (typeof user === "number") return errorStatus(403);
+
+  res.json(await submitAttendance(user, params.id));
 
   function errorStatus(status: number) {
     res.sendStatus(status);

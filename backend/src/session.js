@@ -13,6 +13,13 @@ export async function createSession(user) {
     await sessions.insertOne(newSession);
     return newSession;
 }
+export async function removeSession(session) {
+    const database = getDatabase("repa");
+    if (!database)
+        return false;
+    const sessions = database.collection("sessions");
+    return (await sessions.deleteOne(session)).acknowledged;
+}
 export async function getSession(session) {
     const database = getDatabase("repa");
     if (!database)

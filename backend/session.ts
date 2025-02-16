@@ -21,6 +21,15 @@ export async function createSession(user: User): Promise<false | Session> {
   return newSession;
 }
 
+export async function removeSession(
+  session: Partial<Session>
+): Promise<boolean> {
+  const database = getDatabase("repa");
+  if (!database) return false;
+  const sessions = database.collection<Session>("sessions");
+  return (await sessions.deleteOne(session)).acknowledged;
+}
+
 export async function getSession(
   session: Partial<Session>
 ): Promise<null | Session> {
